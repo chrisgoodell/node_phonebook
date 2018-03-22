@@ -1,50 +1,49 @@
 const http = require ('http');
 
 let contacts = [
-    { "first":"Chris", "last":"Goodell", "number":"234-567-8901", "id":0 },
-    { "first":"Courtney", "last":"Goodell", "number":"345-678-9012", "id":1 },
-    { "first":"Henry", "last":"Goodell", "number":"456-789-0123", "id":2 }
+    { "first":"Millie", "last":"Vanilly", "number":"234-567-8901", "id":0 },
+    { "first":"Willie", "last":"Nilly", "number":"345-678-9012", "id":1 }
 ];
 
 let contactID = contacts.length + 1;
 
-const putContact = function(request, callback) {
+const putContact = (request, callback) => {
     let body = '';
-    request.on('data', function(chunk) {
+    request.on('data', (chunk) => {
         body += chunk.toString();
     });
-    request.on('end', function() {
+    request.on('end', () => {
         callback(body)
     });
 };
 
-const getContact = function (request, response) {
-    var urlID = findContactID(request.url);
-    contacts.forEach(function (entry) {
+const getContact = (request, response) => {
+    let urlID = findContactID(request.url);
+    contacts.forEach((entry) => {
         if (entry.id === urlID) {
             response.end(JSON.stringify(entry));
         }
     })
 };
 
-const getAllContacts = function (request, response) {
+const getAllContacts = (request, response) => {
     response.end(JSON.stringify(contacts));
 };
 
-const postContact = function (request, response) {
-    putContact(request, function(body) {
-        var contact = JSON.parse(body);
+const postContact = (request, response) => {
+    putContact(request, (body) => {
+        let contact = JSON.parse(body);
         contact.id = ++contactID;
         contacts.push(contact);
         response.end('Entry added. ');
     });
 };
 
-const updateContact = function (request, response) {
-    var urlID = findContactID(request.url);
-    putContact(request, function(body) {
-        var updateContact = JSON.parse(body);
-        contacts.forEach(function(entry, i) {
+const updateContact = (request, response) => {
+    let urlID = findContactID(request.url);
+    putContact(request, (body) => {
+        let updateContact = JSON.parse(body);
+        contacts.forEach((entry, i) => {
             if (entry.id === urlID) {
                 contacts.splice(i, 1, updateContact)
                 response.end('Update successful. ');
@@ -53,9 +52,9 @@ const updateContact = function (request, response) {
     });
 };
 
-const deleteContact = function(request, response) {
-    var urlID = findContactID(request.url);
-    contacts.forEach(function(entry, i) {
+const deleteContact = (request, response) => {
+    let urlID = findContactID(request.url);
+    contacts.forEach((entry, i) => {
         if (entry.id === urlID) {
             contacts.splice(i, 1)
             response.end('Delete successful. ')
@@ -63,13 +62,13 @@ const deleteContact = function(request, response) {
     });
 };
 
-const findContactID = function(url) {
+const findContactID = (url) => {
     return parseInt(url.split('/contacts/')[1], 10)
 }
 
-const parseID = function(url) {
-    var id = findContactID(url);
-    var path = '';
+const parseID = (url) => {
+    let id = findContactID(url);
+    let path = '';
     if (id) {
         path = '/contacts/'
     }
@@ -79,10 +78,10 @@ const parseID = function(url) {
     return path;
 };
 
-const findRoute = function(method, url) {
+const findRoute = (method, url) => {
     let foundRoute;
-    var path = parseID(url);
-    routes.forEach(function(route) {
+    let path = parseID(url);
+    routes.forEach((route) => {
         if (route.method === method && route.path === path) {
             foundRoute = route;
         }
@@ -93,31 +92,32 @@ const findRoute = function(method, url) {
 const routes = [
     { 
         method: 'GET', 
-        path: '/contacts/', 
+        path: /^\/contacts\/([0-9]+)$/, 
         handler: getContact
     },
     { 
         method: 'PUT', 
-        path: '/contacts/', 
+        path: /^\/contacts\/([0-9]+)$/, 
         handler: updateContact
     },
     { 
         method: 'DELETE', 
-        path:'/contacts/', 
+        path: /^\/contacts\/([0-9]+)$/, 
         handler: deleteContact
     },
     { 
         method: 'GET', 
-        path: '/contacts', 
-        handler: getAllContacts},
+        path: /^\/contacts\/?$/,
+        handler: getAllContacts
+    },
     { 
         method: 'POST', 
-        path: '/contacts', 
+        path: /^\/contacts\/?$/,
         handler: postContact
     }
 ];
 
-const server = http.createServer(function(request, response) {
+const server = http.createServer((request, response) => {
     const route = findRoute(request.method, request.url);
     if (route) {
         route.handler(request, response);
