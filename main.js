@@ -39,7 +39,7 @@ var lookupEntry = function() {
     })
 };
 
-var addNewEntry = function() {
+var addEntry = function() {
     var entry = '\n';
     rlQuestion('First name: ')
     .then(function(firstName) {
@@ -122,7 +122,7 @@ var phonebook = function() {
             lookupEntry();
         } 
         else if (optionNum === 2) {
-            addNewEntry();
+            addEntry();
         } 
         else if (optionNum === 3) {
             deleteEntry();
