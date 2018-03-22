@@ -64,7 +64,7 @@ const deleteContact = (request, response) => {
 
 const findContactID = (url) => {
     return parseInt(url.split('/contacts/')[1], 10)
-}
+};
 
 const parseID = (url) => {
     let id = findContactID(url);
@@ -87,7 +87,31 @@ const findRoute = (method, url) => {
         }
     });
     return foundRoute;
-}
+};
+
+let serveIndex = (request, response) => {
+    if (request.url === '/') {
+        fs.readFile(`static/index.html`, (err, data) => {
+            if (err) {
+                response.end('404, File Not Found')
+            } 
+            else {
+                response.end(data);
+            }
+        });
+    };
+};
+
+let serveFile = (request, response) => {
+    fs.readFile(`static/${request.url}`, (err, data) => {
+        if (err) {
+            response.end('404, File Not Found')
+        } 
+        else {
+            response.end(data);
+        }
+    });
+};
 
 const routes = [
     { 
@@ -114,6 +138,15 @@ const routes = [
         method: 'POST', 
         path: /^\/contacts\/?$/,
         handler: postContact
+    },
+    {   
+        method: 'GET', 
+        path: /^\/$/, 
+        handler: serveIndex 
+    },
+    {   method: 'GET', 
+        path: /^\/[0-9a-zA-Z -.]+\.[0-9a-zA-Z -.]+/, 
+        handler: serveFile 
     }
 ];
 
